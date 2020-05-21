@@ -1,8 +1,53 @@
 
 var budgetController = (function () {
 
+    var Expense = function(id, description, value){
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
+    var Income = function(id, description, value){
+        this.id = id;
+        this.description = description;
+        this.value = value;
+    };
+
+    var data = {
+        allItems: {
+            exp: [],
+            inc: [],
+            expCount: 0,
+            incCount: 0
+        },
+        totals: {
+            exp: 0,
+            inc: 0
+        }
+
+    };
+
+    return {
+        addItem: function(type, des, val){
+            var newItem, ID; // initialize newItem and ID;
+            // first check if there are any items stores, if not ID is 0
+            if(data.allItems[type+'Count'] === 0){
+                ID = 0;
+            } // if there is already an item, grab the id of the last item in the array and add 1
+            else ID = data.allItems[type][data.allItems[type+'Count']].id + 1;
+            
+            
+            if(type === 'exp'){
+                newItem = new Expense(ID, des, val); 
+            } else if(type === 'inc') {
+                newItem = new Income(ID, des, val);
+            }
+            data.allItems[type].push(newItem);
+            return newItem;
+        }
+    }
 
 })();
+
 
 var UIController = (function () {
 
@@ -25,7 +70,6 @@ var UIController = (function () {
             return DOMstrings;
         }
     }
-    //some code
 })();
 
 
@@ -47,10 +91,12 @@ var controller = (function (budgetCtrl, UICtrl) {
 
 
     var ctrlAddItem = function () {
+        var input, item;
         // 1. get field input
-        var input = UICtrl.getInput();
+        input = UICtrl.getInput();
         console.log(input)
         // 2. add. item to budget controller
+        item = budgetCtrl.addItem(input.type, input.description, input.value);
         // 3. update the ui to reflect the value added
         // 4. calculate budget
         // 5. add the item to ui
