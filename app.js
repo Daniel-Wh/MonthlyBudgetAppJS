@@ -59,7 +59,8 @@ var budgetController = (function () {
         },
 
         deleteItem: function(type, id){
-            var ids, index;
+            var index, val;
+            /*
             ids = data.allItems[type].map(function(current, index){
                 return current.id;
             });
@@ -71,7 +72,20 @@ var budgetController = (function () {
                 console.log('Item not found');
             }
             console.log(data.allItems[type])
-            
+            */
+
+           for(var i = 0; i < data.allItems[type].length; i++){
+               if(data.allItems[type][i].id == id){
+                    index = i;
+                    val = data.allItems[type][i].value;
+               }
+           }
+           data.totals[type] -= val;
+           data.allItems[type].splice(index, 1);
+           data.allItems[type+'Count']--;
+           console.log(data.allItems[type]);
+           console.log(data.totals[type])
+           
         },
 
         calculateBudget: function () {
@@ -148,6 +162,10 @@ var UIController = (function () {
             newHtml = newHtml.replace('%value%', obj.value);
             // insert html into the dom
             document.querySelector(element).insertAdjacentHTML('beforeend', newHtml);
+        },
+        deleteListItem: function(selectorID){
+            var el = document.getElementById(selectorID);
+            el.parentNode.removeChild(el);
         },
         clearFields: function () {
             var fields, fieldsArr;
@@ -233,18 +251,20 @@ var controller = (function (budgetCtrl, UICtrl) {
 
         itemID = e.target.parentNode.parentNode.parentNode.parentNode.id;
         
-        if(itemID){ // only works cause there are no other id's
+        if(itemID){ // only works cause there are no other divs with id's
             splitID = itemID.split('-'); // array with 2 values, the value before and after '-'
             console.log(splitID);
             type = splitID[0];
             id = parseFloat(splitID[1]);
             console.log(id);
+            // 1. delete Item from data structure
+            budgetCtrl.deleteItem(type, id);
+            // 2. delete item from UI
+            UICtrl.deleteListItem(itemID);
+            // 3. update budget
+            updateBudget();
         }
-        // 1. delete Item from data structure
-        budgetCtrl.deleteItem(type, id);
-        // 2. delete item from UI
-
-        // 3. update budget
+        
 
     }
 
